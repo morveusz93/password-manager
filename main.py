@@ -1,9 +1,23 @@
 from tkinter import *
+from tkinter import messagebox
+import random
+import pyperclip
+
 
 LABEL_FONT = ("Georgia", 12)
 GREY = "#8f8c8c"
 main_login = "main_login@email.com"
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
+
+def passwordgen():
+    leng = random.randint(8,15)
+    symbols = 'qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM.?!#%^*-_=+:;1234567890'
+    chars = [random.choice(symbols) for char in range(leng)]
+    password = "".join(chars)
+    entry_pass.delete(0, 'end')
+    entry_pass.insert(0, password)
+    pyperclip.copy(password)
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
@@ -11,14 +25,20 @@ def delete_entries():
     entry_pass.delete(0, 'end')
     entry_website.delete(0, 'end')
 
+
 def save_to_file():
     website = entry_website.get()
     login = entry_login.get()
     password = entry_pass.get()
-    data = f"{website} | {login} | {password}\n"
-    with open("datafile.txt", "a") as file:
-        file.write(data)
-    delete_entries()
+    if len(website) == 0 or len(login) == 0 or len(password) == 0:
+        messagebox.showerror(title="Empty fields detected!", message="Please don't leave any field empty!")
+    else:
+        messagebox.askokcancel(title=website, message=f"Are these informations ok?\n\n\nLogin: {login}\nPassword: {password}")
+        data = f"{website} | {login} | {password}\n"
+        with open("datafile.txt", "a") as file:
+            file.write(data)
+        messagebox.showinfo(title=website, message="Saved!")
+        delete_entries()
 
 # ---------------------------- UI SETUP ------------------------------- #
 # WINDOW
@@ -55,7 +75,7 @@ entry_pass = Entry(width=32)
 entry_pass.grid(row=3, column=1)
 
 # BUTTONS
-generate_pass_btn = Button(text="Generate password", bg=GREY, highlightthickness=0)
+generate_pass_btn = Button(text="Generate password", bg=GREY, highlightthickness=0, command=passwordgen)
 generate_pass_btn.grid(row=3, column=2)
 
 submit_btn = Button(text="Submit", width=42, bg=GREY, highlightthickness=0, command=save_to_file)
