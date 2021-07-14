@@ -2,11 +2,26 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
-
+import json
 
 LABEL_FONT = ("Georgia", 12)
 GREY = "#8f8c8c"
 main_login = "main_login@email.com"
+
+# ---------------------------- SEARCH PASSWORD ----------------------------#
+
+def search_password():
+    website = entry_website.get()
+    try:
+        with open("datafile.json", 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        messagebox.showinfo(title=website, message="File not Found!\nYou don't have any password saved yet")
+    else:
+        if website in data:
+            messagebox.showinfo(title=website, message=f"Login: {data[website]['Login']}\nPassword: {data[website]['Password']}")
+        else:
+            messagebox.showinfo(title=website, message=f"You don't have saved password to {website}")
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
@@ -33,12 +48,25 @@ def save_to_file():
     if len(website) == 0 or len(login) == 0 or len(password) == 0:
         messagebox.showerror(title="Empty fields detected!", message="Please don't leave any field empty!")
     else:
-        messagebox.askokcancel(title=website, message=f"Are these informations ok?\n\n\nLogin: {login}\nPassword: {password}")
-        data = f"{website} | {login} | {password}\n"
-        with open("datafile.txt", "a") as file:
-            file.write(data)
-        messagebox.showinfo(title=website, message="Saved!")
-        delete_entries()
+        new_data = {
+            website: {
+                "Login": login,
+                "Password": password
+            }
+        }
+        try:
+            with open("datafile.json", "r") as file:
+                data_from_file = json.load(file)
+        except FileNotFoundError:
+            with open("datafile.json", 'w') as file:
+                json.dump(new_data, file, indent=4)
+        else:
+            data_from_file.update(new_data)
+            with open("datafile.json", 'w') as file:
+                json.dump(data_from_file, file, indent=4)
+        finally:
+            messagebox.showinfo(title=website, message="Saved!")
+            delete_entries()
 
 # ---------------------------- UI SETUP ------------------------------- #
 # WINDOW
@@ -63,9 +91,9 @@ label_pass = Label(text="Password:", font=LABEL_FONT, bg=GREY, highlightthicknes
 label_pass.grid(row=3, column=0)
 
 # ENTRIES
-entry_website = Entry(width=50)
+entry_website = Entry(width=32)
 entry_website.focus()
-entry_website.grid(row=1, column=1, columnspan=2)
+entry_website.grid(row=1, column=1)
 
 entry_login = Entry(width=50)
 entry_login.insert(0, main_login)
@@ -75,6 +103,9 @@ entry_pass = Entry(width=32)
 entry_pass.grid(row=3, column=1)
 
 # BUTTONS
+find_password_btn = Button(text="Search", bg=GREY, width=14, highlightthickness=0, command=search_password)
+find_password_btn.grid(row=1, column=2)
+
 generate_pass_btn = Button(text="Generate password", bg=GREY, highlightthickness=0, command=passwordgen)
 generate_pass_btn.grid(row=3, column=2)
 
