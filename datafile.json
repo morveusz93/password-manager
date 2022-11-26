@@ -2,5 +2,13 @@
     "face": {
         "Login": "main_login@email.com",
         "Password": "huuFs5:i4^g0"
+    },
+    "gmail": {
+        "Login": "main_login@email.com",
+        "Password": "0t#l%Hw50"
+    },
+    "letycode": {
+        "Login": "tester",
+        "Password": "=ifAYosUW^tg!"
     }
 }
